@@ -7,6 +7,51 @@
 </head>
 <body>
     
+
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BFS Maze Pathfinding Visualizer</title>
+  
+</head>
+<body>
+
+  <h1>BFS Maze Solver Visualizer</h1>
+  <p class="description">Demonstrating Breadth-First Search shortest path exploration on an 11x11 matrix.</p>
+
+  <div class="controls">
+    <button id="startBtn">Start BFS</button>
+    <button id="resetBtn" class="btn-reset">Reset Grid</button>
+    
+    <div class="speed-control">
+      <label for="speedSelect">Speed:</label>
+      <select id="speedSelect">
+        <option value="150">Slow</option>
+        <option value="50" selected>Medium</option>
+        <option value="10">Fast</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-label">Visited</span>
+      <span class="stat-value" id="visitedCount">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Path Length</span>
+      <span class="stat-value" id="pathLength">0</span>
+    </div>
+  </div>
+
+  <div class="grid-container" id="grid"></div>
+
+</body>
+</html>
+
+
 </body>
     <script src="script.js" ></script>
 </html>
