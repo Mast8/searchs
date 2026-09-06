@@ -20,6 +20,7 @@ const gridElement = document.getElementById('grid');
 const startBtn = document.getElementById('startBtn');
 const resetBtn = document.getElementById('resetBtn');
 const speedSelect = document.getElementById('speedSelect');
+const algoSelect = document.getElementById('algoSelect');
 const visitedCountEl = document.getElementById('visitedCount');
 const pathLengthEl = document.getElementById('pathLength');
 
@@ -55,6 +56,11 @@ function getCell(x, y) {
   return document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
 }
 
+// Manhattan distance heuristic for Greedy BFS
+function getDistance(x, y, targetX, targetY) {
+  return Math.abs(x - targetX) + Math.abs(y - targetY);
+}
+
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 async function visualizeBFS() {
@@ -82,6 +88,15 @@ async function visualizeBFS() {
   let pathFound = false;
 
   while (queue.length > 0) {
+    // Sort frontier queue by closest distance to end if Greedy BFS is chosen
+    if (algoSelect && algoSelect.value === 'greedy') {
+      queue.sort((a, b) => {
+        const distA = getDistance(a[0], a[1], endX, endY);
+        const distB = getDistance(b[0], b[1], endX, endY);
+        return distA - distB;
+      });
+    }
+
     const delay = parseInt(speedSelect.value);
     const [x, y] = queue.shift();
 
