@@ -167,5 +167,38 @@ function resetVisuals() {
 startBtn.addEventListener('click', visualizeBFS);
 resetBtn.addEventListener('click', resetVisuals);
 
+// generate maze 
+
+function createGrid() {
+  gridElement.innerHTML = '';
+  for (let y = 0; y < maze.length; y++) {
+    for (let x = 0; x < maze[y].length; x++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.x = x;
+      cell.dataset.y = y;
+
+      if (maze[y][x] === 1) {
+        cell.classList.add('wall');
+      } else {
+        cell.classList.add('path');
+      }
+
+      if (x === start[0] && y === start[1]) {
+        cell.classList.add('start');
+        cell.textContent = 'S';
+      } else if (x === end[0] && y === end[1]) {
+        cell.classList.add('end');
+        cell.textContent = 'E';
+      } else {
+        // Allow user to click to toggle walls manually
+        cell.addEventListener('click', () => toggleWall(x, y));
+      }
+
+      gridElement.appendChild(cell);
+    }
+  }
+}
+
 // Render initial grid on page load
 createGrid();
