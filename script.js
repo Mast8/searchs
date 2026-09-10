@@ -24,6 +24,8 @@ const algoSelect = document.getElementById('algoSelect');
 const visitedCountEl = document.getElementById('visitedCount');
 const pathLengthEl = document.getElementById('pathLength');
 
+const generateBtn = document.getElementById('generateBtn');
+
 function createGrid() {
   gridElement.innerHTML = '';
   for (let y = 0; y < maze.length; y++) {
@@ -169,6 +171,25 @@ resetBtn.addEventListener('click', resetVisuals);
 
 // generate maze 
 
+function toggleWall(x, y) {
+  // Prevent editing while an algorithm is running or on Start/End points
+  if (isRunning) return;
+  if ((x === start[0] && y === start[1]) || (x === end[0] && y === end[1])) return;
+
+  // Toggle state in the 2D matrix (1 = wall, 0 = path)
+  maze[y][x] = maze[y][x] === 1 ? 0 : 1;
+
+  // Update the UI cell class directly
+  const cell = getCell(x, y);
+  if (maze[y][x] === 1) {
+    cell.classList.remove('path');
+    cell.classList.add('wall');
+  } else {
+    cell.classList.remove('wall');
+    cell.classList.add('path');
+  }
+}
+
 function createGrid() {
   gridElement.innerHTML = '';
   for (let y = 0; y < maze.length; y++) {
@@ -200,5 +221,6 @@ function createGrid() {
   }
 }
 
+generateBtn.addEventListener('click', generateMaze);
 // Render initial grid on page load
 createGrid();
