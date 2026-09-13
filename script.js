@@ -221,6 +221,39 @@ function createGrid() {
   }
 }
 
+function generateMaze() {
+  if (isRunning) return;
+
+  const height = maze.length;
+  const width = maze[0].length;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      maze[y][x] = 1;
+    }
+  }
+function carvePath(x, y) {
+    maze[y][x] = 0;
+
+    const dirs = shuffle([
+      [0, -2],
+      [2, 0],
+      [0, 2],
+      [-2, 0]
+    ]);
+
+    for (const [dx, dy] of dirs) {
+      const nx = x + dx;
+      const ny = y + dy;
+
+      if (nx > 0 && nx < width - 1 && ny > 0 && ny < height - 1) {
+        if (maze[ny][nx] === 1) {
+          maze[y + dy / 2][x + dx / 2] = 0;
+          carvePath(nx, ny);
+        }
+      }
+    }
+  }
 generateBtn.addEventListener('click', generateMaze);
 // Render initial grid on page load
 createGrid();
