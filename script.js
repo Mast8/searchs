@@ -19,13 +19,22 @@ let isRunning = false;
 const gridElement = document.getElementById('grid');
 const startBtn = document.getElementById('startBtn');
 const resetBtn = document.getElementById('resetBtn');
+const generateBtn = document.getElementById('generateBtn');
 const speedSelect = document.getElementById('speedSelect');
 const algoSelect = document.getElementById('algoSelect');
 const visitedCountEl = document.getElementById('visitedCount');
 const pathLengthEl = document.getElementById('pathLength');
 
-const generateBtn = document.getElementById('generateBtn');
+// Helper: Fisher-Yates Array Shuffle
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
+// Render grid based on maze array
 function createGrid() {
   gridElement.innerHTML = '';
   for (let y = 0; y < maze.length; y++) {
@@ -47,6 +56,9 @@ function createGrid() {
       } else if (x === end[0] && y === end[1]) {
         cell.classList.add('end');
         cell.textContent = 'E';
+      } else {
+        // Toggle wall on click when visualization is inactive
+        cell.addEventListener('click', () => toggleWall(x, y));
       }
 
       gridElement.appendChild(cell);
@@ -56,6 +68,22 @@ function createGrid() {
 
 function getCell(x, y) {
   return document.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+}
+
+function toggleWall(x, y) {
+  if (isRunning) return;
+  if ((x === start[0] && y === start[1]) || (x === end[0] && y === end[1])) return;
+
+  maze[y][x] = maze[y][x] === 1 ? 0 : 1;
+
+  const cell = getCell(x, y);
+  if (maze[y][x] === 1) {
+    cell.classList.remove('path');
+    cell.classList.add('wall');
+  } else {
+    cell.classList.remove('wall');
+    cell.classList.add('path');
+  }
 }
 
 // Manhattan distance heuristic for Greedy BFS
@@ -69,6 +97,8 @@ async function visualizeBFS() {
   if (isRunning) return;
   isRunning = true;
   startBtn.disabled = true;
+  generateBtn.disabled = true;
+  resetBtn.disabled = true;
 
   const height = maze.length;
   const width = maze[0].length;
@@ -90,7 +120,7 @@ async function visualizeBFS() {
   let pathFound = false;
 
   while (queue.length > 0) {
-    // Sort frontier queue by closest distance to end if Greedy BFS is chosen
+    // Sort frontier queue by distance to target if Greedy BFS is chosen
     if (algoSelect && algoSelect.value === 'greedy') {
       queue.sort((a, b) => {
         const distA = getDistance(a[0], a[1], endX, endY);
@@ -156,69 +186,9 @@ async function visualizeBFS() {
   }
 
   isRunning = false;
-}
-
-function resetVisuals() {
-  if (isRunning) return;
-  visitedCountEl.textContent = '0';
-  pathLengthEl.textContent = '0';
   startBtn.disabled = false;
-  createGrid();
-}
-
-startBtn.addEventListener('click', visualizeBFS);
-resetBtn.addEventListener('click', resetVisuals);
-
-// generate maze 
-
-function toggleWall(x, y) {
-  // Prevent editing while an algorithm is running or on Start/End points
-  if (isRunning) return;
-  if ((x === start[0] && y === start[1]) || (x === end[0] && y === end[1])) return;
-
-  // Toggle state in the 2D matrix (1 = wall, 0 = path)
-  maze[y][x] = maze[y][x] === 1 ? 0 : 1;
-
-  // Update the UI cell class directly
-  const cell = getCell(x, y);
-  if (maze[y][x] === 1) {
-    cell.classList.remove('path');
-    cell.classList.add('wall');
-  } else {
-    cell.classList.remove('wall');
-    cell.classList.add('path');
-  }
-}
-
-function createGrid() {
-  gridElement.innerHTML = '';
-  for (let y = 0; y < maze.length; y++) {
-    for (let x = 0; x < maze[y].length; x++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      cell.dataset.x = x;
-      cell.dataset.y = y;
-
-      if (maze[y][x] === 1) {
-        cell.classList.add('wall');
-      } else {
-        cell.classList.add('path');
-      }
-
-      if (x === start[0] && y === start[1]) {
-        cell.classList.add('start');
-        cell.textContent = 'S';
-      } else if (x === end[0] && y === end[1]) {
-        cell.classList.add('end');
-        cell.textContent = 'E';
-      } else {
-        // Allow user to click to toggle walls manually
-        cell.addEventListener('click', () => toggleWall(x, y));
-      }
-
-      gridElement.appendChild(cell);
-    }
-  }
+  generateBtn.disabled = false;
+  resetBtn.disabled = false;
 }
 
 function generateMaze() {
@@ -227,12 +197,15 @@ function generateMaze() {
   const height = maze.length;
   const width = maze[0].length;
 
+  // Fill grid with walls
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       maze[y][x] = 1;
     }
   }
-function carvePath(x, y) {
+
+  // Recursive Backtracking carve function
+  function carvePath(x, y) {
     maze[y][x] = 0;
 
     const dirs = shuffle([
@@ -254,6 +227,29 @@ function carvePath(x, y) {
       }
     }
   }
+
+  // Start carving from [1, 1] and ensure start/end are reachable paths
+  carvePath(1, 1);
+  maze[start[1]][start[0]] = 0;
+  maze[end[1]][end[0]] = 0;
+
+  resetVisuals();
+}
+
+function resetVisuals() {
+  if (isRunning) return;
+  visitedCountEl.textContent = '0';
+  pathLengthEl.textContent = '0';
+  startBtn.disabled = false;
+  generateBtn.disabled = false;
+  resetBtn.disabled = false;
+  createGrid();
+}
+
+// Event Listeners
+startBtn.addEventListener('click', visualizeBFS);
+resetBtn.addEventListener('click', resetVisuals);
 generateBtn.addEventListener('click', generateMaze);
-// Render initial grid on page load
+
+// Initial grid render on load
 createGrid();
