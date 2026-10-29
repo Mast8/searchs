@@ -25,6 +25,8 @@ const algoSelect = document.getElementById('algoSelect');
 const visitedCountEl = document.getElementById('visitedCount');
 const pathLengthEl = document.getElementById('pathLength');
 
+const mainTitleEl = document.getElementById('mainTitle');
+
 // Helper: Fisher-Yates Array Shuffle
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -250,6 +252,15 @@ function resetVisuals() {
 startBtn.addEventListener('click', visualizeBFS);
 resetBtn.addEventListener('click', resetVisuals);
 generateBtn.addEventListener('click', generateMaze);
+
+algoSelect.addEventListener('change', (e) => {
+  if (e.target.value === 'greedy') {
+    mainTitleEl.textContent = 'Greedy BFS Maze Solver Visualizer';
+    startBtn.textContent = 'Start Greedy BFS';
+  } else {
+    mainTitleEl.textContent = 'BFS Maze Solver Visualizer';
+    startBtn.textContent = 'Start BFS';
+  }
 
 // Initial grid render on load
 createGrid();
