@@ -261,6 +261,7 @@ algoSelect.addEventListener('change', (e) => {
     mainTitleEl.textContent = 'BFS Maze Solver Visualizer';
     startBtn.textContent = 'Start BFS';
   }
+});
 
 // Initial grid render on load
 createGrid();
